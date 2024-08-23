@@ -12,7 +12,7 @@ class OpenApiConfig {
     fun publicApi(): GroupedOpenApi {
         return GroupedOpenApi.builder()
             .group("public")
-            .pathsToMatch("/**")  // Inclui todas as rotas começando com /api
+            .pathsToMatch("/**")
             .build()
     }
 }
