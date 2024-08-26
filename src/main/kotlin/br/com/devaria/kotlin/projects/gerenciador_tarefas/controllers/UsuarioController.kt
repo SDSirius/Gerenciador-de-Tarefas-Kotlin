@@ -1,7 +1,9 @@
 package br.com.devaria.kotlin.projects.gerenciador_tarefas.controllers
 
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.ErroDto
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.SucessoDto
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.models.Usuario
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.repositories.UsuarioRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api/usuario")
-class UsuarioController {
+class UsuarioController(val usuarioRepository : UsuarioRepository) {
 
     @PostMapping
     fun criarUsuario(@RequestBody usuario:Usuario) : ResponseEntity<Any>  {
@@ -41,7 +43,9 @@ class UsuarioController {
                     HttpStatus.BAD_REQUEST)
             }
 
-            return ResponseEntity(usuario, HttpStatus.OK)
+            usuarioRepository.save(usuario)
+
+            return ResponseEntity(SucessoDto("Usuário criado com sucesso!"), HttpStatus.OK)
         }catch (e: Exception){
             return ResponseEntity(ErroDto(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Não foi possivel cadastrar usuário, tente novamente"),
