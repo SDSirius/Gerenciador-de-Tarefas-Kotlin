@@ -1,0 +1,11 @@
+spring.application.name=gerenciador-tarefas
+
+spring.datasource.url=
+
+spring.datasource.username=
+spring.datasource.password=
+
+spring.jpa.properties.hibernate.dialect=
+spring.jpa.show-sql=
+spring.datasource.driver-class-name=
+spring.jpa.hibernate.ddl-auto=
