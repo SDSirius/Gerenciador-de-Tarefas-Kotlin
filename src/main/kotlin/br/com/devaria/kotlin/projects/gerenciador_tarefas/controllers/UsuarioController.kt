@@ -2,6 +2,8 @@ package br.com.devaria.kotlin.projects.gerenciador_tarefas.controllers
 
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.ErroDto
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.SucessoDto
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.extensions.md5
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.extensions.toHex
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.models.Usuario
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.repositories.UsuarioRepository
 import org.springframework.http.HttpStatus
@@ -37,11 +39,17 @@ class UsuarioController(val usuarioRepository : UsuarioRepository) {
                 erros.add("Senha inválida")
             }
 
+            if (usuarioRepository.findByEmail(usuario.email) != null){
+                erros.add("Email já cadastrado!")
+            }
+
             if (erros.size > 0 ){
                 return ResponseEntity(ErroDto(HttpStatus.BAD_REQUEST.value(),
                     null, erros),
                     HttpStatus.BAD_REQUEST)
             }
+
+            usuario.senha = md5(usuario.senha).toHex()
 
             usuarioRepository.save(usuario)
 

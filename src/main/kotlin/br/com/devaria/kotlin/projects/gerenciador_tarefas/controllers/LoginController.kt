@@ -3,6 +3,9 @@ package br.com.devaria.kotlin.projects.gerenciador_tarefas.controllers
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.ErroDto
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.LoginDTO
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.dtos.LoginResppostaDTO
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.extensions.md5
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.extensions.toHex
+import br.com.devaria.kotlin.projects.gerenciador_tarefas.repositories.UsuarioRepository
 import br.com.devaria.kotlin.projects.gerenciador_tarefas.utils.JWTUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -13,27 +16,29 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api/login")
-class LoginController {
-
-    private val LOGIN_TESTE ="admin@admin.com"
-    private val SENHA_TESTE ="Admin1234@"
-    private val idUsuario =1
+class LoginController(val usuarioRepository: UsuarioRepository) {
 
     @PostMapping
     fun fazerLogin (@RequestBody dto : LoginDTO ) : ResponseEntity<Any> {
         try {
             if (dto == null || dto.login.isBlank() || dto.login.isEmpty()
-                || dto.senha.isBlank() || dto.senha.isEmpty()
-                || dto.login !=LOGIN_TESTE || dto.senha != SENHA_TESTE){
+                || dto.senha.isBlank() || dto.senha.isEmpty()){
                 return ResponseEntity(ErroDto(HttpStatus.BAD_REQUEST.value(),
                     "Parâmetro de entrada invalidos, verifique as informações e tente novamente"),
                     HttpStatus.BAD_REQUEST)
             }
+            var usuario = usuarioRepository.findByEmail(dto.login)
 
-            val token = JWTUtils().gerarToken(idUsuario.toString())
+            if (usuario == null || usuario.senha != md5(dto.senha).toHex()){
+                return ResponseEntity(ErroDto(HttpStatus.BAD_REQUEST.value(),
+                    "Usuario ou senha invalidos"),
+                    HttpStatus.BAD_REQUEST)
+            }
 
-            val usuarioTeste = LoginResppostaDTO("UsuarioTeste", LOGIN_TESTE, token)
-            return ResponseEntity(usuarioTeste, HttpStatus.OK)
+            val token = JWTUtils().gerarToken(usuario.id.toString())
+
+            val usuarioAutenticado = LoginResppostaDTO(usuario.nome, usuario.email, token)
+            return ResponseEntity(usuarioAutenticado, HttpStatus.OK)
 
         }catch (e: Exception){
             return ResponseEntity(ErroDto(HttpStatus.INTERNAL_SERVER_ERROR.value(),
