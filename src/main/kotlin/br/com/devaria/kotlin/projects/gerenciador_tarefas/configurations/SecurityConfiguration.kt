@@ -25,7 +25,7 @@ class SecurityConfiguration {
     private lateinit var jwtUtils : JWTUtils
 
     @Autowired
-    private val usuarioRepository: UsuarioRepository? = null
+    private lateinit var usuarioRepository: UsuarioRepository
 
     @Bean
     fun configureHttpSecurity(http: HttpSecurity): SecurityFilterChain {
@@ -37,7 +37,7 @@ class SecurityConfiguration {
                     .anyRequest().authenticated()
             }
             .cors { it.configurationSource(configuracaoCors()) }
-            .addFilter(JWTAuthorizationFilter(http.getSharedObject(AuthenticationManager::class.java), jwtUtils/*, usuarioRepository*/))
+            .addFilter(JWTAuthorizationFilter(http.getSharedObject(AuthenticationManager::class.java), jwtUtils, usuarioRepository))
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
 
         return http.build()
