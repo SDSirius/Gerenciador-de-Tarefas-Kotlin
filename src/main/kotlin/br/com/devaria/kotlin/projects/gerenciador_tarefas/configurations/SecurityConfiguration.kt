@@ -44,7 +44,7 @@ class SecurityConfiguration {
     }
 
     @Bean
-    fun configuracaoCors(): CorsConfigurationSource {
+    fun configuracaoCors(): CorsConfigurationSource? {
         val configuracao = CorsConfiguration()
         configuracao.addAllowedOriginPattern("*")
         configuracao.addAllowedMethod("*")
